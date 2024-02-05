@@ -85,19 +85,19 @@ const HoldingOrder = () => {
       ),
     },
     {
-      name: 'Segent',
+      name: 'Segment',
       sortable: true,
       minWidth: '150px',
-      selector: row => row['Segent'],
+      selector: row => row['Segment'],
       cell: row => (
-        <Badge color={row['Segent'].includes('-') ? 'light-danger' : 'light-success'} pill>
-          {row['Segent'].includes('+') ? (
+        <Badge color={row['Segment'].includes('-') ? 'light-danger' : 'light-success'} pill>
+          {row['Segment'].includes('+') ? (
             <>
-              {row['Segent']}
+              {row['Segment']}
             </>
           ) : (
             <>
-              {row['Segent']}
+              {row['Segment']}
             </>
           )}
         </Badge>
@@ -145,7 +145,7 @@ const HoldingOrder = () => {
       "Current Value": "₹ 106398.00",
       "P&L": "+ ₹ 8794.00",
       "Net Chg.": "9.01%",
-      "Segent": "-0.66%"
+      "Segment": "-0.66%"
     },
     {
       "Instrument": "SGB20161 NSE",
@@ -156,7 +156,7 @@ const HoldingOrder = () => {
       "Current Value": 5976.00,
       "P&L": "+ ₹ 641.00",
       "Net Chg.": "12.01%",
-      "Segent": "-3.21%"
+      "Segment": "-3.21%"
     },
     {
       "Instrument": "SGBDEC25-GB NSE",
@@ -167,7 +167,7 @@ const HoldingOrder = () => {
       "Current Value": "+3260.00",
       "P&L": "+ ₹ 3260.00",
       "Net Chg.": "0.00%",
-      "Segent": "-0.066%"
+      "Segment": "-0.066%"
     },
     {
       "Instrument": "SGBDEC2513-GB NSE 5",
@@ -178,7 +178,7 @@ const HoldingOrder = () => {
       "Current Value": "12.19%",
       "P&L": "+ ₹ 3260.00",
       "Net Chg.": "-0.066%",
-      "Segent": "-0.066%"
+      "Segment": "-0.066%"
     },
     {
       "Instrument": "SGBJUL25-GB NSE",
@@ -189,7 +189,7 @@ const HoldingOrder = () => {
       "Current Value": "+11687.60",
       "P&L": "+ ₹ 3260.00",
       "Net Chg.": "-0.01%",
-      "Segent": "-0.066%"
+      "Segment": "-0.066%"
     },
     {
       "Instrument": "SGBMAR24-GB NSE",
@@ -200,7 +200,7 @@ const HoldingOrder = () => {
       "Current Value": "+ ₹ 10423.80",
       "P&L": "+ ₹ 3260.00",
       "Net Chg.": "0.00%",
-      "Segent": "-0.066%"
+      "Segment": "-0.066%"
     }
 
 
