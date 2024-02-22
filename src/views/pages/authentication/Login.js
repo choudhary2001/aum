@@ -1,5 +1,5 @@
 // ** React Imports
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 // ** Custom Hooks
@@ -65,11 +65,17 @@ const ToastContent = ({ t, name, role }) => {
 }
 
 const defaultValues = {
-  password: 'admin',
-  loginEmail: 'admin@demo.com'
+  loginEmail: 'admin@demo.com',
 }
 
 const Login = () => {
+
+  const [showEmailInput, setShowEmailInput] = useState(true);
+  const [showOtpInput, setShowOtpInput] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   // ** Hooks
   const { skin } = useSkin()
   const dispatch = useDispatch()
@@ -84,40 +90,95 @@ const Login = () => {
 
   const source = skin === 'dark' ? illustrationsDark : illustrationsLight
 
-  const onSubmit = data => {
-    if (Object.values(data).every(field => field.length > 0)) {
-      useJwt
-        .login({ email: data.loginEmail, password: data.password })
-        .then(res => {
-          const data = { ...res.data.userData, accessToken: res.data.accessToken, refreshToken: res.data.refreshToken }
-          dispatch(handleLogin(data))
-          ability.update(res.data.userData.ability)
-          navigate(getHomeRouteForLoggedInUser(data.role))
-          toast(t => (
-            <ToastContent t={t} role={data.role || 'admin'} name={data.fullName || data.username || 'John Doe'} />
-          ))
-        })
-        .catch(err => {
-          if (err.response && err.response.data && err.response.data.error) {
+  const onSubmit = async (data) => {
+    console.log(data);
+    setLoading(true);
+
+    if (Object.values(data)?.every((field) => field?.length > 0)) {
+
+      try {
+        if (showEmailInput) {
+          const response = await fetch('http://0.0.0.0:8000/api/trade/login/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: data.loginEmail,
+            }),
+          });
+
+          const responseData = await response.json();
+
+          if (response.ok) {
+            setEmailSent(true);
+            setShowEmailInput(false);
+            setShowOtpInput(true);
+            setLoading(false);
+            return;
+          } else {
             setError('loginEmail', {
               type: 'manual',
-              message: err.response.data.error
+              message: responseData.error || 'Unexpected error during email sending.',
             });
-          } else {
-            console.error('Unexpected error structure:', err);
-            // Handle the case where err.response or err.response.data is undefined or not as expected
+            setLoading(false);
+            return;
           }
-        });
+        }
+
+        if (showOtpInput) {
+          const otpResponse = await fetch('http://0.0.0.0:8000/api/trade/login/verify', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: data.loginEmail,
+              otp: data.otp, // Assuming the name of the OTP field is 'otp'
+            }),
+          });
+
+          const otpData = await otpResponse.json();
+
+          console.log(otpData);
+
+          if (otpResponse.ok) {
+            const userData = { ...otpData.userData, accessToken: otpData.accessToken, refreshToken: otpData.refreshToken, role: otpData.role, ability: otpData.ability };
+            dispatch(handleLogin(userData));
+            // ability.update(otpData.ability);
+            console.log(otpData.role)
+            navigate(getHomeRouteForLoggedInUser(otpData.role));
+            toast(t => <ToastContent t={t} role={otpData.role || 'admin'} name={otpData.fullName || otpData.username || 'John Doe'} />);
+
+          } else {
+            // Handle unsuccessful OTP verification
+            // For example, display an error message
+            setError('otp', {
+              type: 'manual',
+              message: otpData.error || 'Incorrect OTP. Please try again.',
+            });
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Error during login:', error);
+        // Handle unexpected errors during login
+        setLoading(false);
+      }
+      finally {
+        setLoading(false);
+      }
     } else {
       for (const key in data) {
         if (data[key].length === 0) {
           setError(key, {
             type: 'manual'
-          })
+          });
         }
       }
     }
   }
+
 
   return (
     <div className='auth-wrapper auth-cover'>
@@ -209,42 +270,46 @@ const Login = () => {
             </Alert>
             <Form className='auth-login-form mt-2' onSubmit={handleSubmit(onSubmit)}>
               <div className='mb-1'>
-                <Label className='form-label' for='login-email'>
-                  Email
-                </Label>
-                <Controller
-                  id='loginEmail'
-                  name='loginEmail'
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      autoFocus
-                      type='email'
-                      placeholder='john@example.com'
-                      invalid={errors.loginEmail && true}
-                      {...field}
+                {showEmailInput && (
+                  <>
+                    <Label className='form-label' for='login-email'>
+                      Email
+                    </Label>
+                    <Controller
+                      id='loginEmail'
+                      name='loginEmail'
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          autoFocus
+                          type='email'
+                          placeholder='john@example.com'
+                          invalid={errors.loginEmail && true}
+                          {...field}
+                        />
+                      )}
                     />
-                  )}
-                />
-                {errors.loginEmail && <FormFeedback>{errors.loginEmail.message}</FormFeedback>}
+                    {errors.loginEmail && <FormFeedback>{errors.loginEmail.message}</FormFeedback>}
+                  </>
+                )}
               </div>
-              <div className='mb-1'>
-                <div className='d-flex justify-content-between'>
-                  <Label className='form-label' for='login-password'>
-                    Password
-                  </Label>
-                  <Link to='/forgot-password'>
-                    <small>Forgot Password?</small>
-                  </Link>
-                </div>
-                <Controller
-                  id='password'
-                  name='password'
-                  control={control}
-                  render={({ field }) => (
-                    <InputPasswordToggle className='input-group-merge' invalid={errors.password && true} {...field} />
-                  )}
-                />
+              <div>
+                {showOtpInput && (
+                  <div className='mb-1'>
+                    <Label className='form-label' for='otp'>
+                      OTP
+                    </Label>
+                    <Controller
+                      id='otp'
+                      name='otp'
+                      control={control}
+                      render={({ field }) => (
+                        <Input type='text' placeholder='Enter OTP' invalid={errors.otp && true} {...field} />
+                      )}
+                    />
+                    {errors.otp && <FormFeedback>{errors.otp.message}</FormFeedback>}
+                  </div>
+                )}
               </div>
               <div className='form-check mb-1'>
                 <Input type='checkbox' id='remember-me' />
@@ -252,8 +317,8 @@ const Login = () => {
                   Remember Me
                 </Label>
               </div>
-              <Button type='submit' color='primary' block>
-                Sign in
+              <Button type='submit' color='primary' block disabled={loading}>
+                {loading ? 'Loading...' : (showOtpInput ? 'Verify OTP and Sign in' : 'Sign in')}
               </Button>
             </Form>
             <p className='text-center mt-2'>
@@ -281,8 +346,8 @@ const Login = () => {
             </div>
           </Col>
         </Col>
-      </Row>
-    </div>
+      </Row >
+    </div >
   )
 }
 

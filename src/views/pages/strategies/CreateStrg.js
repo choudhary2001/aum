@@ -3,10 +3,10 @@ import React, { useState } from 'react'
 import { Button, ButtonGroup, Card, CardHeader, CardTitle, CardFooter, CardText, Input, Label, Row, Col } from 'reactstrap'
 import CreateAppPage from './PageCreateApp'
 import ShareProject from './ShareProject'
- 
+
 const CreateStrg = () => {
   return (
-    <div className='bg-white p-2'>
+    <div className=''>
       {/* <CardHeader className='border-bottom mb-2'>
         <CardTitle tag='h4'>Create Statistics</CardTitle>
       </CardHeader> */}

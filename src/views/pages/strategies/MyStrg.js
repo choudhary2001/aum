@@ -1,4 +1,3 @@
-
 // ** React Imports
 import { Fragment, useContext } from 'react'
 // ** Custom Components
@@ -19,8 +18,8 @@ const MyStrg = () => {
   // ** Context
   const context = useContext(ThemeColors)
   return (
-    <div className='bg-white p-2'>
-    {/* <CardHeader className='border-bottom mb-2'>
+    <div className=''>
+      {/* <CardHeader className='border-bottom mb-2'>
       <CardTitle tag='h4'>My Statistics</CardTitle>
     </CardHeader> */}
       <Row>

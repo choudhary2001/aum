@@ -1,5 +1,5 @@
 // ** React Imports
-import { Fragment, useState } from 'react'
+import { Fragment, useState, useEffect, useRef } from 'react'
 
 // ** Custom Components
 import Avatar from '@components/avatar'
@@ -48,14 +48,7 @@ import portrait6 from '@src/assets/images/portrait/small/avatar-s-10.jpg'
 import portrait7 from '@src/assets/images/portrait/small/avatar-s-8.jpg'
 import portrait8 from '@src/assets/images/portrait/small/avatar-s-6.jpg'
 
-const options = [
-  { value: 'Donna Frank', label: 'Donna Frank', avatar: avatar1 },
-  { value: 'Jane Foster', label: 'Jane Foster', avatar: avatar2 },
-  { value: 'Gabrielle Robertson', label: 'Gabrielle Robertson', avatar: avatar3 },
-  { value: 'Lori Spears', label: 'Lori Spears', avatar: avatar4 },
-  { value: 'Sandy Vega', label: 'Sandy Vega', avatar: avatar5 },
-  { value: 'Cheryl May', label: 'Cheryl May', avatar: avatar6 }
-]
+
 
 const data = [
   {
@@ -108,19 +101,85 @@ const data = [
   }
 ]
 
-const OptionComponent = ({ data, ...props }) => {
-  return (
-    <components.Option {...props}>
-      <div className='d-flex flex-wrap align-items-center'>
-        <Avatar className='my-0 me-1' size='sm' img={data.avatar} />
-        <div>{data.label}</div>
-      </div>
-    </components.Option>
-  )
-}
+
 
 const ShareProject = () => {
   const [show, setShow] = useState(false)
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedStrategy, setSelectedStrategy] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://0.0.0.0:8000/api/trade/strategy/fetchallstrategy');
+        const result = await response.json();
+        console.log(result);
+        setData(result);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // const options = [
+  //   { value: 'Donna Frank', label: 'Donna Frank', avatar: avatar1 },
+  //   { value: 'Jane Foster', label: 'Jane Foster', avatar: avatar2 },
+  //   { value: 'Gabrielle Robertson', label: 'Gabrielle Robertson', avatar: avatar3 },
+  //   { value: 'Lori Spears', label: 'Lori Spears', avatar: avatar4 },
+  //   { value: 'Sandy Vega', label: 'Sandy Vega', avatar: avatar5 },
+  //   { value: 'Cheryl May', label: 'Cheryl May', avatar: avatar6 }
+  // ]
+
+  const options = data.map(item => ({
+    label: item.strategyName,
+    value: item.strategyName,
+  }));
+
+  const OptionComponent = ({ data, ...props }) => {
+    return (
+      <components.Option {...props}>
+        <div className='d-flex flex-wrap align-items-center'>
+          {/* <Avatar className='my-0 me-1' size='sm' img={data.avatar} /> */}
+          <div>{data.strategyName}</div>
+        </div>
+      </components.Option>
+    )
+  }
+
+  const filteredData = data.filter(item =>
+    item.strategyName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch('http://0.0.0.0:8000/api/trade/strategy/deleteStrategyInfo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Update UI after successful deletion
+        setData((prevData) => prevData.filter((item) => item.id !== id));
+      } else {
+        console.error('Error deleting strategy:', result);
+      }
+    } catch (error) {
+      console.error('Error deleting strategy:', error);
+    }
+  };
+
 
   return (
     <Fragment>
@@ -134,17 +193,18 @@ const ShareProject = () => {
           </Button>
         </CardBody>
       </Card>
+
       <Modal isOpen={show} toggle={() => setShow(!show)} className='modal-dialog-centered modal-lg'>
         <ModalHeader className='bg-transparent' toggle={() => setShow(!show)}></ModalHeader>
         <ModalBody className='px-sm-5 mx-50 pb-4'>
-          <h1 className='text-center mb-1'>Share Project</h1>
+          <h1 className='text-center mb-1'>Strategy</h1>
           <p className='text-center'>Share project with a team members</p>
           <Label for='addMemberSelect' className='form-label fw-bolder font-size font-small-4 mb-50'>
-            Add Members
+            Search Startegy
           </Label>
-          <Select
+          {/* <Select
             options={options}
-            isClearable={false}
+            // isClearable={false}
             id='addMemberSelect'
             theme={selectThemeColors}
             className='react-select'
@@ -152,27 +212,27 @@ const ShareProject = () => {
             components={{
               Option: OptionComponent
             }}
-          />
-          <p className='fw-bolder pt-50 mt-2'>12 Members</p>
+          /> */}
+          <input type='search' placeholder='Search ..' style={{ width: "100%", padding: "5px", borderRadius: "5px", border: "none", outline: "none" }} value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)} />
+          <p className='fw-bolder pt-50 mt-2'>{data.length} Strategy</p>
           <ListGroup flush className='mb-2'>
-            {data.map(item => {
+            {filteredData.map(item => {
               return (
-                <ListGroupItem key={item.name} className='d-flex align-items-start border-0 px-0'>
-                  <Avatar className='me-75' img={item.img} imgHeight={38} imgWidth={38} />
+                <ListGroupItem key={item.id} className='d-flex align-items-start border-0 px-0'>
+                  {/* <Avatar className='me-75' img={item.img} imgHeight={38} imgWidth={38} /> */}
                   <div className='d-flex align-items-center justify-content-between w-100'>
                     <div className='me-1'>
-                      <h5 className='mb-25'>{item.name}</h5>
-                      <span>{item.username}</span>
+                      <h5 className='mb-25'>{item.strategyName}</h5>
+                      {/* <span>{item.username}</span> */}
                     </div>
                     <UncontrolledDropdown>
                       <DropdownToggle color='flat-secondary' caret>
-                        <span className='d-lg-inline-block d-none'>{item.type}</span>
+                        {/* <span className='d-lg-inline-block d-none'>{item.type}</span> */}
                       </DropdownToggle>
                       <DropdownMenu>
-                        <DropdownItem className='w-100'>Owner</DropdownItem>
-                        <DropdownItem className='w-100'>Can Edit</DropdownItem>
-                        <DropdownItem className='w-100'>Can Comment</DropdownItem>
-                        <DropdownItem className='w-100'>Can View</DropdownItem>
+                        <DropdownItem className='w-100'>Edit</DropdownItem>
+                        <DropdownItem className='w-100' onClick={() => handleDelete(item.id)} >Delete</DropdownItem>
                       </DropdownMenu>
                     </UncontrolledDropdown>
                   </div>
@@ -180,7 +240,7 @@ const ShareProject = () => {
               )
             })}
           </ListGroup>
-          <div className='d-flex align-content-center justify-content-between flex-wrap'>
+          {/* <div className='d-flex align-content-center justify-content-between flex-wrap'>
             <div className='d-flex align-items-center me-2'>
               <Users className='font-medium-2 me-50' />
               <p className='fw-bolder mb-0'>Public to Vuexy - Pixinvent</p>
@@ -189,7 +249,7 @@ const ShareProject = () => {
               <Link className='font-medium-2 me-50' />
               <span>Copy project link</span>
             </a>
-          </div>
+          </div> */}
         </ModalBody>
       </Modal>
     </Fragment>
