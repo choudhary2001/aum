@@ -98,7 +98,7 @@ const Login = () => {
 
       try {
         if (showEmailInput) {
-          const response = await fetch('http://0.0.0.0:8000/api/trade/login/register', {
+          const response = await fetch('http://52.64.9.118:8000/api/trade/login/register', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -127,7 +127,7 @@ const Login = () => {
         }
 
         if (showOtpInput) {
-          const otpResponse = await fetch('http://0.0.0.0:8000/api/trade/login/verify', {
+          const otpResponse = await fetch('http://52.64.9.118:8000/api/trade/login/verify', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

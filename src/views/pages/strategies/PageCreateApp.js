@@ -1116,7 +1116,7 @@ const CreateAppPage = () => {
 
       console.log(formattedFormData);
 
-      const response = await fetch('http://0.0.0.0:8000/api/trade/strategy/addStrategy', {
+      const response = await fetch('http://52.64.9.118:8000/api/trade/strategy/addStrategy', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

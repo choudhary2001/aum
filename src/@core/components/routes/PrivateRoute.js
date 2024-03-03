@@ -17,7 +17,9 @@ const PrivateRoute = ({ children, route }) => {
     let action = null
     let resource = null
     let restrictedRoute = false
+
     console.log(route.meta);
+
     if (route.meta) {
       action = route.meta.action
       resource = route.meta.resource

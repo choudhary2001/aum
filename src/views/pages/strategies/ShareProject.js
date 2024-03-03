@@ -114,7 +114,7 @@ const ShareProject = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://0.0.0.0:8000/api/trade/strategy/fetchallstrategy');
+        const response = await fetch('http://52.64.9.118:8000/api/trade/strategy/fetchallstrategy');
         const result = await response.json();
         console.log(result);
         setData(result);
@@ -159,7 +159,7 @@ const ShareProject = () => {
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch('http://0.0.0.0:8000/api/trade/strategy/deleteStrategyInfo', {
+      const response = await fetch('http://52.64.9.118:8000/api/trade/strategy/deleteStrategyInfo', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
